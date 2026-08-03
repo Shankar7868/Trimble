@@ -579,8 +579,8 @@
   <div class="toast-container" id="toast-box"></div>
 
   <!-- Reserve Modal -->
-  <div class="modal-overlay" id="reserve-modal">
-    <div class="modal">
+  <div class="modal-overlay" id="reserve-modal" onclick="closeReserveModal()">
+    <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h3 id="modal-product-title">Hold Product</h3>
         <span class="material-icons-round modal-close" onclick="closeReserveModal()">close</span>
@@ -598,8 +598,8 @@
   </div>
 
   <!-- Add Product Modal -->
-  <div class="modal-overlay" id="product-modal">
-    <div class="modal">
+  <div class="modal-overlay" id="product-modal" onclick="closeAddProductModal()">
+    <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h3>Create New Product</h3>
         <span class="material-icons-round modal-close" onclick="closeAddProductModal()">close</span>
@@ -750,8 +750,8 @@
                 <button class="btn btn-sm btn-secondary" onclick="openReserveModal(${p.id}, '${p.name}')" ${isOutOfStock ? 'disabled' : ''} style="flex: 1; justify-content: center;">
                   <span class="material-icons-round" style="font-size: 1rem;">lock</span> Reserve
                 </button>
-                <button class="btn btn-sm btn-success" onclick="directPurchase(${p.id}, 1)" ${isOutOfStock ? 'disabled' : ''} style="justify-content: center;" title="Quick Purchase 1 Unit">
-                  <span class="material-icons-round" style="font-size: 1rem;">shopping_bag</span>
+                <button class="btn btn-sm btn-success" onclick="directPurchase(${p.id}, 1)" ${isOutOfStock ? 'disabled' : ''} style="flex: 1; justify-content: center;" title="Quick Purchase 1 Unit">
+                  <span class="material-icons-round" style="font-size: 1rem;">shopping_bag</span> Buy
                 </button>
               </div>
             </div>
