@@ -631,6 +631,25 @@
     </div>
   </div>
 
+  <!-- Edit Stock Modal (Admin only) -->
+  <div class="modal-overlay" id="edit-stock-modal" onclick="closeEditStockModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="edit-stock-title">Adjust Stock</h3>
+        <span class="material-icons-round modal-close" onclick="closeEditStockModal()">close</span>
+      </div>
+      <div class="form-group">
+        <label for="edit-stock-qty">New Total Stock Quantity</label>
+        <input type="number" id="edit-stock-qty" class="form-input" min="0" value="0">
+        <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.4rem;">Sets the total physical stock. Active reservations remain unchanged.</p>
+      </div>
+      <input type="hidden" id="edit-stock-product-id">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeEditStockModal()">Cancel</button>
+        <button class="btn" onclick="submitEditStock()">Update Stock</button>
+      </div>
+    </div>
+  </div>
   <!-- JS Implementation -->
   <script>
     // State
@@ -746,13 +765,17 @@
                 <span>Hold Allocation:</span>
                 <span class="value available">${p.available_quantity} / ${p.total_quantity} free</span>
               </div>
-              <div style="display: flex; gap: 0.5rem; width: 100%;">
+              <div style="display: flex; gap: 0.5rem; width: 100%; flex-wrap: wrap;">
                 <button class="btn btn-sm btn-secondary" onclick="openReserveModal(${p.id}, '${p.name}')" ${isOutOfStock ? 'disabled' : ''} style="flex: 1; justify-content: center;">
                   <span class="material-icons-round" style="font-size: 1rem;">lock</span> Reserve
                 </button>
                 <button class="btn btn-sm btn-success" onclick="directPurchase(${p.id}, 1)" ${isOutOfStock ? 'disabled' : ''} style="flex: 1; justify-content: center;" title="Quick Purchase 1 Unit">
                   <span class="material-icons-round" style="font-size: 1rem;">shopping_bag</span> Buy
                 </button>
+                ${currentUser.role === 'admin' ? `
+                <button class="btn btn-sm" onclick="openEditStockModal(${p.id}, '${p.name}', ${p.total_quantity})" style="flex: 1; justify-content: center; background: #7c3aed;" title="Edit Stock Quantity">
+                  <span class="material-icons-round" style="font-size: 1rem;">edit</span> Stock
+                </button>` : ''}
               </div>
             </div>
           `;
@@ -1073,6 +1096,44 @@
 
         showToast('New product created successfully!', 'success');
         closeAddProductModal();
+        fetchProducts();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Edit Stock Modal (Admin)
+    function openEditStockModal(prodId, name, currentStock) {
+      document.getElementById('edit-stock-product-id').value = prodId;
+      document.getElementById('edit-stock-title').innerText = `Adjust Stock: ${name}`;
+      document.getElementById('edit-stock-qty').value = currentStock;
+      document.getElementById('edit-stock-modal').classList.add('active');
+    }
+
+    function closeEditStockModal() {
+      document.getElementById('edit-stock-modal').classList.remove('active');
+    }
+
+    async function submitEditStock() {
+      const prodId = parseInt(document.getElementById('edit-stock-product-id').value);
+      const newQty = parseInt(document.getElementById('edit-stock-qty').value);
+
+      if (isNaN(newQty) || newQty < 0) {
+        showToast('Please enter a valid non-negative quantity.', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/products/${prodId}`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify({ total_quantity: newQty })
+        });
+
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+
+        showToast('Stock updated successfully!', 'success');
+        closeEditStockModal();
         fetchProducts();
       } catch (err) {
         showToast(err.message, 'error');
