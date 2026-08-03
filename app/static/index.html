@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Reservation & Purchase Dashboard</title>
+  <!-- Google Fonts & Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --panel-bg: rgba(20, 26, 43, 0.6);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #0ea5e9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand .icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+    }
+
+    .brand h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* Auth Toggler */
+    .auth-selector {
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .auth-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .auth-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .auth-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    /* Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Glass Panels */
+    .panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .panel-title span {
+      color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-success {
+      background: var(--success);
+    }
+    
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toast {
+      background: rgba(18, 24, 38, 0.95);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      color: var(--text-main);
+      padding: 1rem 1.5rem;
+      min-width: 300px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideIn 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--danger); }
+    .toast.warning { border-left-color: var(--warning); }
+
+    .toast-close {
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Products Grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .product-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .product-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-sku {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .product-price {
+      font-weight: 600;
+      color: var(--success);
+      font-size: 1.1rem;
+    }
+
+    .product-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.4;
+      flex-grow: 1;
+    }
+
+    .product-stock {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+    }
+
+    .product-stock .value {
+      font-weight: 600;
+    }
+
+    .product-stock .available {
+      color: var(--info);
+    }
+
+    /* Lists/Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-reserved { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+    .badge-confirmed { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+    .badge-cancelled { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .badge-expired { background: rgba(156, 163, 175, 0.15); color: var(--text-muted); }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: #111827;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-close {
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .empty-state span {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <span class="material-icons-round icon">inventory_2</span>
+        <div>
+          <h1>Trimble Inventory Portal</h1>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">FastAPI & SQLAlchemy Persistence Hold Demo</p>
+        </div>
+      </div>
+
+      <!-- Auth Switcher -->
+      <div class="auth-selector">
+        <button class="auth-btn active" id="btn-cust-1" onclick="switchUser('cust_1', 'customer')">
+          <span class="material-icons-round" style="font-size: 1.2rem;">person</span> Customer 1
+        </button>
+        <button class="auth-btn" id="btn-cust-2" onclick="switchUser('cust_2', 'customer')">
+          <span class="material-icons-round" style="font-size: 1.2rem;">person_outline</span> Customer 2
+        </button>
+        <button class="auth-btn" id="btn-admin" onclick="switchUser('admin_1', 'admin')">
+          <span class="material-icons-round" style="font-size: 1.2rem;">admin_panel_settings</span> Admin
+        </button>
+      </div>
+    </header>
+
+    <!-- Admin Panel (Staged conditionally) -->
+    <div id="admin-panel" class="panel" style="display: none; border-color: rgba(99, 102, 241, 0.4);">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="material-icons-round">build_circle</span> Administrative controls
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-sm btn-secondary" onclick="openAddProductModal()">
+            <span class="material-icons-round" style="font-size: 1rem;">add</span> Add Product
+          </button>
+          <button class="btn btn-sm btn-danger" onclick="triggerCleanup()">
+            <span class="material-icons-round" style="font-size: 1rem;">cleaning_services</span> Sweep Expired Holds
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Catalog Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span class="material-icons-round">grid_view</span> Product Catalog
+        </div>
+        <button class="btn btn-sm btn-secondary" onclick="fetchProducts()">
+          <span class="material-icons-round" style="font-size: 1rem;">refresh</span> Reload
+        </button>
+      </div>
+      <div class="products-grid" id="products-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Secondary lists grid -->
+    <div class="dashboard-grid">
+      <!-- Holds Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="material-icons-round">lock_clock</span> <span id="holds-panel-title">My Holds</span>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Hold ID</th>
+                <th>Product</th>
+                <th id="th-user" style="display: none;">User ID</th>
+                <th>Qty</th>
+                <th>Expires In</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="holds-list">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Purchases Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span class="material-icons-round">receipt_long</span> <span id="purchases-panel-title">My Purchases</span>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Receipt ID</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th id="th-purchase-user" style="display: none;">User</th>
+              </tr>
+            </thead>
+            <tbody id="purchases-list">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-box"></div>
+
+  <!-- Reserve Modal -->
+  <div class="modal-overlay" id="reserve-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-product-title">Hold Product</h3>
+        <span class="material-icons-round modal-close" onclick="closeReserveModal()">close</span>
+      </div>
+      <div class="form-group">
+        <label for="reserve-qty">Quantity to hold</label>
+        <input type="number" id="reserve-qty" class="form-input" min="1" value="1">
+      </div>
+      <input type="hidden" id="reserve-product-id">
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeReserveModal()">Cancel</button>
+        <button class="btn" onclick="submitReservation()">Request Hold</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Product Modal -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Create New Product</h3>
+        <span class="material-icons-round modal-close" onclick="closeAddProductModal()">close</span>
+      </div>
+      <div class="form-group">
+        <label for="prod-sku">SKU Code (unique)</label>
+        <input type="text" id="prod-sku" class="form-input" placeholder="PROD_123">
+      </div>
+      <div class="form-group">
+        <label for="prod-name">Name</label>
+        <input type="text" id="prod-name" class="form-input" placeholder="Product Title">
+      </div>
+      <div class="form-group">
+        <label for="prod-desc">Description</label>
+        <input type="text" id="prod-desc" class="form-input" placeholder="Optional details">
+      </div>
+      <div class="form-group">
+        <label for="prod-price">Price ($)</label>
+        <input type="number" id="prod-price" class="form-input" min="0" step="0.01" value="9.99">
+      </div>
+      <div class="form-group">
+        <label for="prod-stock">Initial Stock Quantity</label>
+        <input type="number" id="prod-stock" class="form-input" min="0" value="50">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeAddProductModal()">Cancel</button>
+        <button class="btn" onclick="submitAddProduct()">Create Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Implementation -->
+  <script>
+    // State
+    let currentUser = {
+      id: 'cust_1',
+      role: 'customer'
+    };
+    let productNames = {};
+    let countdownIntervals = [];
+
+    // Switch profiles
+    function switchUser(userId, role) {
+      currentUser.id = userId;
+      currentUser.role = role;
+
+      // Update button highlights
+      document.querySelectorAll('.auth-btn').forEach(btn => btn.classList.remove('active'));
+      if (userId === 'cust_1') document.getElementById('btn-cust-1').classList.add('active');
+      else if (userId === 'cust_2') document.getElementById('btn-cust-2').classList.add('active');
+      else if (role === 'admin') document.getElementById('btn-admin').classList.add('active');
+
+      // Admin panel visibility
+      const adminPanel = document.getElementById('admin-panel');
+      if (role === 'admin') {
+        adminPanel.style.display = 'block';
+        document.getElementById('holds-panel-title').innerText = 'All Holds (Admin View)';
+        document.getElementById('purchases-panel-title').innerText = 'All Purchases (Admin View)';
+        document.getElementById('th-user').style.display = '';
+        document.getElementById('th-purchase-user').style.display = '';
+      } else {
+        adminPanel.style.display = 'none';
+        document.getElementById('holds-panel-title').innerText = 'My Holds';
+        document.getElementById('purchases-panel-title').innerText = 'My Purchases';
+        document.getElementById('th-user').style.display = 'none';
+        document.getElementById('th-purchase-user').style.display = 'none';
+      }
+
+      showToast(`Logged in as ${userId} (${role})`, 'info');
+      
+      // Refresh views
+      fetchProducts().then(() => {
+        fetchHolds();
+        fetchPurchases();
+      });
+    }
+
+    // Helper: Headers builder
+    function getHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'X-User-Id': currentUser.id,
+        'X-User-Role': currentUser.role
+      };
+    }
+
+    // Show Notification Toast
+    function showToast(message, type = 'success') {
+      const box = document.getElementById('toast-box');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <span>${message}</span>
+        <span class="material-icons-round toast-close" onclick="this.parentElement.remove()">close</span>
+      `;
+      box.appendChild(toast);
+
+      // Auto remove after 4.5 seconds
+      setTimeout(() => {
+        toast.remove();
+      }, 4500);
+    }
+
+    // Fetch Products
+    async function fetchProducts() {
+      try {
+        const response = await fetch('/products/', { headers: getHeaders() });
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+        const products = await response.json();
+        
+        // Cache names mapping
+        products.forEach(p => {
+          productNames[p.id] = p.name;
+        });
+
+        const listDiv = document.getElementById('products-list');
+        listDiv.innerHTML = '';
+
+        if (products.length === 0) {
+          listDiv.innerHTML = `
+            <div class="empty-state" style="grid-column: 1/-1;">
+              <span class="material-icons-round">category</span>
+              No products available. Add some in Admin Mode.
+            </div>
+          `;
+          return;
+        }
+
+        products.forEach(p => {
+          const isOutOfStock = p.available_quantity === 0;
+          const card = document.createElement('div');
+          card.className = 'product-card';
+          card.innerHTML = `
+            <div>
+              <div class="product-header">
+                <span class="product-sku">${p.sku}</span>
+                <span class="product-price">$${p.price.toFixed(2)}</span>
+              </div>
+              <div class="product-name">${p.name}</div>
+              <div class="product-desc">${p.description || 'No description provided.'}</div>
+            </div>
+            <div>
+              <div class="product-stock">
+                <span>Hold Allocation:</span>
+                <span class="value available">${p.available_quantity} / ${p.total_quantity} free</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem; width: 100%;">
+                <button class="btn btn-sm btn-secondary" onclick="openReserveModal(${p.id}, '${p.name}')" ${isOutOfStock ? 'disabled' : ''} style="flex: 1; justify-content: center;">
+                  <span class="material-icons-round" style="font-size: 1rem;">lock</span> Reserve
+                </button>
+                <button class="btn btn-sm btn-success" onclick="directPurchase(${p.id}, 1)" ${isOutOfStock ? 'disabled' : ''} style="justify-content: center;" title="Quick Purchase 1 Unit">
+                  <span class="material-icons-round" style="font-size: 1rem;">shopping_bag</span>
+                </button>
+              </div>
+            </div>
+          `;
+          listDiv.appendChild(card);
+        });
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Fetch Holds (Reservations)
+    async function fetchHolds() {
+      // Clear previous countdown timers
+      countdownIntervals.forEach(clearInterval);
+      countdownIntervals = [];
+
+      try {
+        const response = await fetch('/reservations/', { headers: getHeaders() });
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+        const holds = await response.json();
+
+        const tbody = document.getElementById('holds-list');
+        tbody.innerHTML = '';
+
+        if (holds.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="empty-state">
+                <span class="material-icons-round">hourglass_empty</span>
+                No active hold reservations found.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        holds.forEach(h => {
+          const tr = document.createElement('tr');
+          const isPending = h.status === 'RESERVED';
+          
+          let actionButtons = '';
+          if (isPending) {
+            actionButtons = `
+              <button class="btn btn-sm btn-success" onclick="purchaseFromReservation(${h.id})" title="Confirm Purchase">
+                <span class="material-icons-round" style="font-size: 0.9rem;">check</span> Buy
+              </button>
+              <button class="btn btn-sm btn-danger btn-secondary" onclick="cancelReservation(${h.id})" title="Cancel Hold">
+                <span class="material-icons-round" style="font-size: 0.9rem;">close</span>
+              </button>
+            `;
+          } else {
+            actionButtons = `<span style="color: var(--text-muted); font-size: 0.8rem;">Finalized</span>`;
+          }
+
+          const userTd = currentUser.role === 'admin' ? `<td><code>${h.user_id}</code></td>` : '';
+
+          tr.innerHTML = `
+            <td>#${h.id}</td>
+            <td><strong>${productNames[h.product_id] || `Product ID ${h.product_id}`}</strong></td>
+            ${userTd}
+            <td>${h.quantity}</td>
+            <td id="timer-${h.id}">Calculating...</td>
+            <td><span class="badge badge-${h.status.toLowerCase()}">${h.status}</span></td>
+            <td>
+              <div style="display: flex; gap: 0.4rem;">
+                ${actionButtons}
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+
+          // Setup live timer countdown if reservation is still active
+          if (isPending) {
+            setupTimer(h.id, h.expires_at);
+          } else {
+            document.getElementById(`timer-${h.id}`).innerText = '-';
+          }
+        });
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Set Live Timer Countdown
+    function setupTimer(id, expiresAtStr) {
+      const element = document.getElementById(`timer-${id}`);
+      const expiresAt = new Date(expiresAtStr + "Z").getTime(); // Treat as UTC
+
+      function updateCountdown() {
+        const now = new Date().getTime();
+        const diff = expiresAt - now;
+
+        if (diff <= 0) {
+          element.innerText = "Expired";
+          element.style.color = "var(--danger)";
+          clearInterval(timerId);
+          // Reload lists since state shifted on the fly
+          fetchHolds();
+          fetchProducts();
+          return;
+        }
+
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+        element.innerText = `${mins}m ${secs}s`;
+        
+        if (diff < 60000) {
+          element.style.color = "var(--warning)"; // Yellow warning color for last minute
+        } else {
+          element.style.color = "var(--text-main)";
+        }
+      }
+
+      updateCountdown();
+      const timerId = setInterval(updateCountdown, 1000);
+      countdownIntervals.push(timerId);
+    }
+
+    // Fetch Purchases History
+    async function fetchPurchases() {
+      try {
+        const response = await fetch('/purchases/', { headers: getHeaders() });
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+        const purchases = await response.json();
+
+        const tbody = document.getElementById('purchases-list');
+        tbody.innerHTML = '';
+
+        if (purchases.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="empty-state">
+                <span class="material-icons-round">payment</span>
+                No purchase transactions logged.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        purchases.forEach(p => {
+          const tr = document.createElement('tr');
+          const userTd = currentUser.role === 'admin' ? `<td><code>${p.user_id}</code></td>` : '';
+          
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight: 500;">Receipt #${p.id}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${productNames[p.product_id] || `Product ID ${p.product_id}`}</div>
+            </td>
+            <td>${p.quantity}</td>
+            <td style="color: var(--success); font-weight: 600;">$${p.total_price.toFixed(2)}</td>
+            ${userTd}
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Parse Error Messages cleanly from standardized payload
+    async function getErrorMsg(response) {
+      try {
+        const data = await response.json();
+        return data.message || 'Unknown error occurred.';
+      } catch {
+        return 'Server returned an error status.';
+      }
+    }
+
+    // Modal Control: Reservation Request
+    function openReserveModal(prodId, name) {
+      document.getElementById('reserve-product-id').value = prodId;
+      document.getElementById('modal-product-title').innerText = `Reserve: ${name}`;
+      document.getElementById('reserve-qty').value = 1;
+      document.getElementById('reserve-modal').classList.add('active');
+    }
+
+    function closeReserveModal() {
+      document.getElementById('reserve-modal').classList.remove('active');
+    }
+
+    // Actions: Submit Reservation
+    async function submitReservation() {
+      const prodId = parseInt(document.getElementById('reserve-product-id').value);
+      const qty = parseInt(document.getElementById('reserve-qty').value);
+
+      try {
+        const response = await fetch('/reservations/', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ product_id: prodId, quantity: qty })
+        });
+
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+        
+        showToast('Reservation hold created successfully!', 'success');
+        closeReserveModal();
+        fetchProducts();
+        fetchHolds();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Actions: Direct Purchase
+    async function directPurchase(prodId, qty) {
+      try {
+        const response = await fetch('/purchases/', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ product_id: prodId, quantity: qty })
+        });
+
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+        
+        showToast('Direct purchase completed successfully!', 'success');
+        fetchProducts();
+        fetchPurchases();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Actions: Confirm/Purchase reservation hold
+    async function purchaseFromReservation(holdId) {
+      try {
+        const response = await fetch('/purchases/', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ reservation_id: holdId })
+        });
+
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+        
+        showToast('Reservation finalized to Purchase!', 'success');
+        fetchProducts();
+        fetchHolds();
+        fetchPurchases();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Actions: Cancel reservation hold
+    async function cancelReservation(holdId) {
+      try {
+        const response = await fetch(`/reservations/${holdId}/cancel`, {
+          method: 'POST',
+          headers: getHeaders()
+        });
+
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+
+        showToast('Reservation cancelled, inventory returned.', 'warning');
+        fetchProducts();
+        fetchHolds();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Actions: Admin trigger batch cleanup
+    async function triggerCleanup() {
+      try {
+        const response = await fetch('/reservations/cleanup', {
+          method: 'POST',
+          headers: getHeaders()
+        });
+
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+        const data = await response.json();
+
+        showToast(data.message, 'info');
+        fetchProducts();
+        fetchHolds();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Modal Control: Add Product
+    function openAddProductModal() {
+      document.getElementById('prod-sku').value = '';
+      document.getElementById('prod-name').value = '';
+      document.getElementById('prod-desc').value = '';
+      document.getElementById('prod-price').value = 9.99;
+      document.getElementById('prod-stock').value = 50;
+      document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeAddProductModal() {
+      document.getElementById('product-modal').classList.remove('active');
+    }
+
+    // Actions: Admin create product
+    async function submitAddProduct() {
+      const sku = document.getElementById('prod-sku').value;
+      const name = document.getElementById('prod-name').value;
+      const desc = document.getElementById('prod-desc').value;
+      const price = parseFloat(document.getElementById('prod-price').value);
+      const stock = parseInt(document.getElementById('prod-stock').value);
+
+      try {
+        const response = await fetch('/products/', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            sku: sku,
+            name: name,
+            description: desc || null,
+            price: price,
+            total_quantity: stock
+          })
+        });
+
+        if (!response.ok) throw new Error(await getErrorMsg(response));
+
+        showToast('New product created successfully!', 'success');
+        closeAddProductModal();
+        fetchProducts();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // Init
+    window.onload = function() {
+      // Setup initial switchUser to trigger initial loads
+      switchUser('cust_1', 'customer');
+    };
+  </script>
+</body>
+</html>

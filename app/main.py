@@ -1,5 +1,6 @@
+import os
 from fastapi import FastAPI, Request, status, HTTPException
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError
 from contextlib import asynccontextmanager
 from app.database import engine, Base
@@ -18,9 +19,13 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-@app.get("/", include_in_schema=False)
-def root_redirect():
-    return RedirectResponse(url="/docs")
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def read_root():
+    static_file_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    if os.path.exists(static_file_path):
+        with open(static_file_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>Trimble Inventory Portal: static file index.html not found.</h1>")
 
 @app.exception_handler(BaseBusinessException)
 async def business_exception_handler(request: Request, exc: BaseBusinessException):
