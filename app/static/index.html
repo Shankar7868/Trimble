@@ -10,18 +10,18 @@
   
   <style>
     :root {
-      --bg-dark: #0a0e17;
-      --panel-bg: rgba(20, 26, 43, 0.6);
-      --border-color: rgba(255, 255, 255, 0.08);
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --info: #0ea5e9;
+      --bg-dark: #f0f4f8;
+      --panel-bg: rgba(255, 255, 255, 0.85);
+      --border-color: rgba(0, 0, 0, 0.08);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --info: #0284c7;
     }
 
     * {
@@ -33,8 +33,8 @@
 
     body {
       background-color: var(--bg-dark);
-      background-image: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+      background-image: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.06) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.05) 0%, transparent 40%);
       background-attachment: fixed;
       color: var(--text-main);
       min-height: 100vh;
@@ -82,6 +82,7 @@
       padding: 0.5rem;
       display: flex;
       gap: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
     }
 
     .auth-btn {
@@ -105,8 +106,8 @@
     }
 
     .auth-btn:hover:not(.active) {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-main);
+      background: rgba(79, 70, 229, 0.07);
+      color: var(--primary);
     }
 
     /* Grid Layout */
@@ -130,7 +131,7 @@
       border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 1.5rem;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
       margin-bottom: 1.5rem;
     }
 
@@ -178,13 +179,13 @@
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
+      background: #f1f5f9;
       color: var(--text-main);
       border: 1px solid var(--border-color);
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: #e2e8f0;
     }
 
     .btn-danger {
@@ -215,10 +216,10 @@
     }
 
     .toast {
-      background: rgba(18, 24, 38, 0.95);
+      background: #ffffff;
       border-left: 4px solid var(--primary);
       border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
       color: var(--text-main);
       padding: 1rem 1.5rem;
       min-width: 300px;
@@ -226,7 +227,6 @@
       justify-content: space-between;
       align-items: center;
       animation: slideIn 0.3s ease;
-      backdrop-filter: blur(10px);
     }
 
     .toast.success { border-left-color: var(--success); }
@@ -251,11 +251,11 @@
     }
 
     .product-card {
-      background: rgba(255, 255, 255, 0.02);
+      background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 1.25rem;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -263,7 +263,8 @@
 
     .product-card:hover {
       transform: translateY(-2px);
-      border-color: rgba(99, 102, 241, 0.3);
+      border-color: rgba(79, 70, 229, 0.3);
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.1);
     }
 
     .product-header {
@@ -275,12 +276,13 @@
 
     .product-sku {
       font-size: 0.75rem;
-      color: var(--text-muted);
+      color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(79, 70, 229, 0.08);
       padding: 0.2rem 0.5rem;
       border-radius: 4px;
+      font-weight: 600;
     }
 
     .product-price {
@@ -309,8 +311,9 @@
       font-size: 0.85rem;
       margin-bottom: 1rem;
       padding: 0.5rem 0.75rem;
-      background: rgba(255, 255, 255, 0.03);
+      background: #f8fafc;
       border-radius: 6px;
+      border: 1px solid #e2e8f0;
     }
 
     .product-stock .value {
@@ -344,7 +347,7 @@
     }
 
     tr:hover td {
-      background: rgba(255, 255, 255, 0.01);
+      background: #f8fafc;
     }
 
     /* Badges */
@@ -387,13 +390,13 @@
     }
 
     .modal {
-      background: #111827;
+      background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: 16px;
       padding: 1.5rem;
       width: 100%;
       max-width: 400px;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     }
 
     .modal-header {
@@ -422,18 +425,19 @@
 
     .form-input {
       width: 100%;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
       border-radius: 8px;
       padding: 0.6rem 0.8rem;
       color: var(--text-main);
       font-size: 0.95rem;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .form-input:focus {
       outline: none;
       border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
 
     .modal-actions {
